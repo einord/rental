@@ -2,7 +2,7 @@
 
 This project is a test mockup project for renting cars.
 
-Backend: C# .Net 9
+Backend: C# .Net 9\
 Frontend: vue.js 3.5
 
 ## Projects
