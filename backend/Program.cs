@@ -14,6 +14,9 @@ internal class Program
             ?? throw new Exception("Could not read settings properly");
         builder.Services.AddSingleton(settings);
 
+        // Add time provider
+        builder.Services.AddSingleton<ITimeProvider, SystemTimeProvider>();
+
         // Add services to the container.
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services
