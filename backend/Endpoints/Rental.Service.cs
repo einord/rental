@@ -9,13 +9,13 @@ public interface IRentalService
     ReturnResponse ReturnCar(ReturnRequest returnRequest);
 }
 
-public class RentalService(Settings settings) : IRentalService
+public class RentalService(Settings settings, ITimeProvider timeProvider) : IRentalService
 {
     public RentResponse RentCar(RentRequest rentRequest)
     {
         // Find the next available car
         HashSet<Guid> unavailableCars = [.. Database.Rentals.Values.Where(x => x.ReturnedDate is null).Select(x => x.CarId)];
-        Models.Car? availableCar = Database.Cars.Values.FirstOrDefault(x => x.CarType == rentRequest.CarType && !unavailableCars.Contains(x.Id));
+        Car? availableCar = Database.Cars.Values.FirstOrDefault(x => x.CarType == rentRequest.CarType && !unavailableCars.Contains(x.Id));
 
         // Create rental post if car was available
         Models.Rental? rental = availableCar is null ? null : new()
@@ -24,7 +24,7 @@ public class RentalService(Settings settings) : IRentalService
             BookingNumber = Guid.CreateVersion7().ToString().Replace("-", string.Empty),
             Ssn = rentRequest.Ssn,
             CarId = availableCar.Id,
-            StartDate = DateTime.UtcNow,
+            StartDate = timeProvider.Now,
             TotalKilometersBeforeRent = availableCar.TotalKilometers
         };
 
@@ -67,10 +67,17 @@ public class RentalService(Settings settings) : IRentalService
         // If car was found, update the rental object and calculate pricing
         rental = rental with
         {
-            ReturnedDate = DateTime.Now,
+            ReturnedDate = timeProvider.Now,
             TotalKilometersAfterReturn = returnRequest.TotalKilometers
         };
         int numberOfDays = GetDaysBetweenDates(DateOnly.FromDateTime(rental.StartDate.Date), DateOnly.FromDateTime(rental.ReturnedDate.Value.Date));
+
+        // Validate the number of days
+        if (numberOfDays < 1)
+        {
+            throw new Exception("Total number of days are less than zero (0), unless time travel has been invented this is not possible.");
+        }
+
         decimal price = CalculatePrice(matchingCar.CarType, numberOfDays, rental.TotalKilometersDriven);
 
         // Update price and save rental to the database
