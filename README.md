@@ -3,7 +3,7 @@
 This project is a test mockup project for renting cars.
 
 Backend: C# .Net 9\
-Frontend: vue.js 3.5
+Frontend: vue.js 3.5 (node.js)
 
 ## Projects
 There are three projects (folders) in the root directory
@@ -17,6 +17,8 @@ To run tests, open the solution file in Visual Studio Code (or Visual Studio), a
 They tests renting three cars (two that succeed, and one that fails) for each type of car available (compact, SUV and truck). It also tests the pricing when renting the different car types.
 
 ## Run the full application
+
+To run the application, .Net 9 and node.js must be installed on the machine.
 
 1. From the /backend folder, run the following in a terminal:
 ```bash
