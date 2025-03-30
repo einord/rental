@@ -1,6 +1,9 @@
+using Biluthyrning.Services;
+using Microsoft.AspNetCore.Mvc;
+
 namespace Biluthyrning.Endpoints;
 
-public class Rental
+public static class Rental
 {
     public static RouteGroupBuilder MapEndpoints(RouteGroupBuilder routeGroupBuilder)
     {
@@ -10,13 +13,21 @@ public class Rental
         return routeGroupBuilder;
     }
 
-    private static string RentCar()
+    /// <summary>
+    /// Rent a car based on the provided request data.
+    /// <para>If no car is available, null values will be returned.</para>
+    /// </summary>
+    private static RentResponse RentCar(IRentalService rentalService, [FromBody] RentRequest rentRequest)
     {
-        return "Rental endpoint is working!";
+        // Validate the request data
+        if (string.IsNullOrWhiteSpace(rentRequest.Ssn) || string.IsNullOrWhiteSpace(rentRequest.CarType.ToString()))
+        {
+            return new(null, null);
+        }
+
+        return rentalService.RentCar(rentRequest);
     }
 
-    private static string ReturnCar()
-    {
-        return "Return endpoint is working!";
-    }
+    private static ReturnResponse ReturnCar(IRentalService rentalService, [FromBody] ReturnRequest returnRequest)
+        => rentalService.ReturnCar(returnRequest);
 }
